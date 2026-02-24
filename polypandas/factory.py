@@ -105,6 +105,7 @@ class PandasFactory(DataclassFactory[T], ABC):
             pa_schema = infer_pyarrow_schema(model)
             if pa_schema is not None:
                 import pyarrow as pa
+
                 table = pa.Table.from_pylist(data, schema=pa_schema)
                 if hasattr(pd, "ArrowDtype"):
                     return table.to_pandas(types_mapper=pd.ArrowDtype)
@@ -188,7 +189,7 @@ def build_pandas_dataframe(
         (PandasFactory,),
         {"__model__": model, "__is_base_factory__": False},
     )
-    return factory_class.build_dataframe(
+    return factory_class.build_dataframe(  # type: ignore[attr-defined]
         size=size, schema=schema, use_pyarrow=use_pyarrow, **kwargs
     )
 

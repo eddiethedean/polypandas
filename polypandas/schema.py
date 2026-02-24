@@ -180,7 +180,12 @@ def _is_struct_like(type_hint: Type) -> bool:
             return True
     if hasattr(type_hint, "model_fields"):
         return True
-    if hasattr(type_hint, "__annotations__") and get_origin(type_hint) not in (list, List, dict, Dict):
+    if hasattr(type_hint, "__annotations__") and get_origin(type_hint) not in (
+        list,
+        List,
+        dict,
+        Dict,
+    ):
         return True
     return False
 
@@ -216,7 +221,6 @@ def infer_pyarrow_schema(model: Type) -> Optional[Any]:
     def python_type_to_pa(python_type: Type, nullable: bool = True) -> Any:
         if is_optional(python_type):
             python_type = unwrap_optional(python_type)
-            nullable = True
         origin = get_origin(python_type)
         if origin is Literal:
             python_type = infer_literal_type(python_type)
@@ -263,7 +267,7 @@ def infer_pyarrow_schema(model: Type) -> Optional[Any]:
             return pa.struct(fields)
 
         if hasattr(python_type, "__annotations__"):
-            required = getattr(python_type, "__required_keys__", set())
+            required: set = getattr(python_type, "__required_keys__", set())
             fields = []
             for name, ft in python_type.__annotations__.items():
                 n = name not in required or is_optional(ft)

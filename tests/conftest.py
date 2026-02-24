@@ -9,6 +9,7 @@ from polypandas import PandasFactory
 @dataclass
 class User:
     """Shared model for tests that need a simple dataclass (e.g. test_io, test_factory)."""
+
     id: int
     name: str
     email: str

@@ -104,8 +104,6 @@ def assert_dtypes_equal(
     if not is_pandas_available():
         raise DataFrameComparisonError("pandas is required")
 
-    import pandas as pd
-
     dtypes1 = df1.dtypes
     dtypes2 = df2.dtypes
 
@@ -122,14 +120,10 @@ def assert_dtypes_equal(
             )
 
 
-def assert_approx_count(
-    df: Any, expected_count: int, tolerance: float = 0.1
-) -> None:
+def assert_approx_count(df: Any, expected_count: int, tolerance: float = 0.1) -> None:
     """Assert that DataFrame row count is approximately equal to expected."""
     if not is_pandas_available():
         raise DataFrameComparisonError("pandas is required")
-
-    import pandas as pd
 
     actual_count = len(df)
     min_count = int(expected_count * (1 - tolerance))
@@ -150,7 +144,7 @@ def get_column_stats(df: Any, column: str) -> Dict[str, Any]:
     import pandas as pd
 
     s = df[column]
-    stats = {
+    stats: Dict[str, Any] = {
         "count": int(s.count()),
         "null_count": int(s.isna().sum()),
         "distinct_count": int(s.nunique()),
@@ -172,19 +166,14 @@ def assert_column_exists(df: Any, *columns: str) -> None:
 
     if missing:
         raise DataFrameComparisonError(
-            f"Columns missing from DataFrame: {missing}. "
-            f"Available columns: {sorted(df_columns)}"
+            f"Columns missing from DataFrame: {missing}. Available columns: {sorted(df_columns)}"
         )
 
 
-def assert_no_duplicates(
-    df: Any, columns: Optional[List[str]] = None
-) -> None:
+def assert_no_duplicates(df: Any, columns: Optional[List[str]] = None) -> None:
     """Assert that DataFrame has no duplicate rows."""
     if not is_pandas_available():
         raise DataFrameComparisonError("pandas is required")
-
-    import pandas as pd
 
     total_count = len(df)
     if columns is None:

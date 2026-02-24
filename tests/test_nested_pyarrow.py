@@ -3,7 +3,7 @@
 import pytest
 from dataclasses import dataclass
 
-from polypandas import PandasFactory, pandas_factory
+from polypandas import PandasFactory
 from polypandas.schema import has_nested_structs, infer_pyarrow_schema
 from polypandas.protocols import is_pyarrow_available
 

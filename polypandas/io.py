@@ -44,8 +44,6 @@ def save_as_json(df: Any, path: str, **kwargs: Any) -> None:
     if not is_pandas_available():
         raise DataIOError("pandas is required for JSON operations")
 
-    import pandas as pd
-
     try:
         Path(path).parent.mkdir(parents=True, exist_ok=True)
         df.to_json(path, **kwargs)
@@ -62,8 +60,6 @@ def save_as_csv(
     """Save DataFrame as CSV file."""
     if not is_pandas_available():
         raise DataIOError("pandas is required for CSV operations")
-
-    import pandas as pd
 
     try:
         Path(path).parent.mkdir(parents=True, exist_ok=True)
@@ -143,9 +139,7 @@ def load_and_validate(
     elif suffix in (".csv", ".txt"):
         df = load_csv(path)
     else:
-        raise DataIOError(
-            f"Unsupported file format: {suffix}. Supported: .parquet, .json, .csv"
-        )
+        raise DataIOError(f"Unsupported file format: {suffix}. Supported: .parquet, .json, .csv")
 
     if validate_schema and expected_schema is not None:
         from polypandas.testing import assert_column_exists
@@ -155,9 +149,7 @@ def load_and_validate(
         # Optionally check dtypes
         for col, dtype in expected_schema.items():
             if col in df.columns and str(df[col].dtype) != str(dtype):
-                raise DataIOError(
-                    f"Column '{col}' has dtype {df[col].dtype}, expected {dtype}"
-                )
+                raise DataIOError(f"Column '{col}' has dtype {df[col].dtype}, expected {dtype}")
 
     return df
 

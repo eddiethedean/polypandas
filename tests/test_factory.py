@@ -12,7 +12,7 @@ from polypandas import (
 )
 from polypandas.exceptions import PandasNotAvailableError
 
-from conftest import User, UserFactory
+from conftest import UserFactory
 
 
 @dataclass
@@ -99,7 +99,9 @@ def test_build_dataframe_with_explicit_schema():
     """Explicit schema dict overrides inferred dtypes when not using PyArrow."""
     import pandas as pd
 
-    df = UserFactory.build_dataframe(size=5, schema={"id": "float64", "name": "object", "email": "object"})
+    df = UserFactory.build_dataframe(
+        size=5, schema={"id": "float64", "name": "object", "email": "object"}
+    )
     assert isinstance(df, pd.DataFrame)
     assert len(df) == 5
     assert str(df["id"].dtype) == "float64"

@@ -1,6 +1,11 @@
 # Polypandas
 
-**Generate type-safe pandas DataFrames effortlessly using polyfactory**
+[![PyPI version](https://badge.fury.io/py/polypandas.svg)](https://pypi.org/project/polypandas/)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+
+**Generate type-safe pandas DataFrames effortlessly using polyfactory.**
 
 Inspired by [polyspark](https://github.com/eddiethedean/polyspark).
 
@@ -8,16 +13,16 @@ Inspired by [polyspark](https://github.com/eddiethedean/polyspark).
 
 ## Table of contents
 
-- [Why Polypandas?](#why-polypandas)
-- [Installation](#installation)
-- [Quick start](#quick-start)
-- [Nested structs (optional PyArrow)](#nested-structs-optional-pyarrow)
-- [Key features](#key-features)
-- [Type mapping](#type-mapping)
-- [API reference](#api-reference)
-- [Testing utilities](#testing-utilities)
-- [Data I/O](#data-io)
-- [License & related](#license--related)
+- [Why Polypandas?](https://github.com/odosmatthews/polypandas#why-polypandas)
+- [Installation](https://github.com/odosmatthews/polypandas#installation)
+- [Quick start](https://github.com/odosmatthews/polypandas#quick-start)
+- [Nested structs (optional PyArrow)](https://github.com/odosmatthews/polypandas#nested-structs-optional-pyarrow)
+- [Key features](https://github.com/odosmatthews/polypandas#key-features)
+- [Type mapping](https://github.com/odosmatthews/polypandas#type-mapping)
+- [API reference](https://github.com/odosmatthews/polypandas#api-reference)
+- [Testing utilities](https://github.com/odosmatthews/polypandas#testing-utilities)
+- [Data I/O](https://github.com/odosmatthews/polypandas#data-io)
+- [License & related](https://github.com/odosmatthews/polypandas#license--related)
 
 ---
 
@@ -324,6 +329,6 @@ loaded = load_dicts_from_json("users.jsonl")
 
 ## License & related
 
-- **License:** MIT — see [LICENSE](LICENSE).
-- **Docs:** [docs/roadmap.md](docs/roadmap.md) for roadmap and ideas.
+- **License:** MIT — see [LICENSE](https://github.com/odosmatthews/polypandas/blob/main/LICENSE).
+- **Docs:** [docs/roadmap.md](https://github.com/odosmatthews/polypandas/blob/main/docs/roadmap.md) for roadmap and ideas.
 - **Related:** [polyspark](https://github.com/eddiethedean/polyspark), [polyfactory](https://github.com/litestar-org/polyfactory).
