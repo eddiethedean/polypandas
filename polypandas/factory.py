@@ -13,8 +13,8 @@ except ImportError:
     BaseModel = None  # type: ignore[assignment, misc]
 
 from polypandas.exceptions import PandasNotAvailableError
-from polypandas.protocols import is_pandas_available
-from polypandas.schema import infer_schema
+from polypandas.protocols import is_pandas_available, is_pyarrow_available
+from polypandas.schema import has_nested_structs, infer_pyarrow_schema, infer_schema
 
 T = TypeVar("T")
 
@@ -67,13 +67,21 @@ class PandasFactory(DataclassFactory[T], ABC):
         cls,
         size: int = 10,
         schema: Optional[Dict[str, Any]] = None,
+        use_pyarrow: Optional[bool] = None,
         **kwargs: Any,
     ) -> Any:
         """Build a pandas DataFrame with generated data.
 
+        When PyArrow is installed (pip install polypandas[pyarrow]) and the model
+        has nested structs, the DataFrame uses PyArrow-backed dtypes for proper
+        nested columns. Set use_pyarrow=False to always use the standard path.
+
         Args:
             size: Number of rows to generate.
             schema: Optional explicit dtype dict (column name -> dtype). If None, inferred from model.
+                Ignored when use_pyarrow is True and PyArrow schema is used.
+            use_pyarrow: If None, use PyArrow when available and model has nested structs.
+                If True, use PyArrow when available. If False, never use PyArrow.
             **kwargs: Additional keyword arguments passed to the factory.
 
         Returns:
@@ -87,8 +95,22 @@ class PandasFactory(DataclassFactory[T], ABC):
 
         import pandas as pd
 
-        dtypes = infer_schema(cls.__model__, schema)
+        model = cls.__model__
         data = cls.build_dicts(size=size, **kwargs)
+
+        if use_pyarrow is None:
+            use_pyarrow = is_pyarrow_available() and has_nested_structs(model)
+
+        if use_pyarrow and is_pyarrow_available():
+            pa_schema = infer_pyarrow_schema(model)
+            if pa_schema is not None:
+                import pyarrow as pa
+                table = pa.Table.from_pylist(data, schema=pa_schema)
+                if hasattr(pd, "ArrowDtype"):
+                    return table.to_pandas(types_mapper=pd.ArrowDtype)
+                return table.to_pandas()
+
+        dtypes = infer_schema(model, schema)
         df = pd.DataFrame(data)
         if dtypes:
             df = df.astype(dtypes)
@@ -145,6 +167,7 @@ def build_pandas_dataframe(
     model: Type[T],
     size: int = 10,
     schema: Optional[Dict[str, Any]] = None,
+    use_pyarrow: Optional[bool] = None,
     **kwargs: Any,
 ) -> Any:
     """Convenience function to build a DataFrame without creating a factory class.
@@ -153,6 +176,8 @@ def build_pandas_dataframe(
         model: The model type (dataclass, Pydantic, TypedDict).
         size: Number of rows to generate.
         schema: Optional explicit dtype dict.
+        use_pyarrow: If None, use PyArrow when available and model has nested structs.
+            If True/False, use or skip PyArrow. See PandasFactory.build_dataframe.
         **kwargs: Additional keyword arguments for data generation.
 
     Returns:
@@ -163,7 +188,9 @@ def build_pandas_dataframe(
         (PandasFactory,),
         {"__model__": model, "__is_base_factory__": False},
     )
-    return factory_class.build_dataframe(size=size, schema=schema, **kwargs)
+    return factory_class.build_dataframe(
+        size=size, schema=schema, use_pyarrow=use_pyarrow, **kwargs
+    )
 
 
 def pandas_factory(cls: Type[T]) -> Type[T]:
@@ -230,9 +257,12 @@ def pandas_factory(cls: Type[T]) -> Type[T]:
         model_cls: Type[T],
         size: int = 10,
         schema: Optional[Dict[str, Any]] = None,
+        use_pyarrow: Optional[bool] = None,
         **kwargs: Any,
     ) -> Any:
-        return factory_class.build_dataframe(size=size, schema=schema, **kwargs)  # type: ignore[attr-defined]
+        return factory_class.build_dataframe(  # type: ignore[attr-defined]
+            size=size, schema=schema, use_pyarrow=use_pyarrow, **kwargs
+        )
 
     @classmethod  # type: ignore[misc]
     @functools.wraps(PandasFactory.build_dicts)

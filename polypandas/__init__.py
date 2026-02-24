@@ -2,7 +2,8 @@
 
 This package provides tools to generate pandas DataFrames for testing and
 development using the polyfactory library. It supports dataclasses, Pydantic
-models, and TypedDicts. Pandas is optional - you can generate dicts without it.
+models, and TypedDicts. Optional PyArrow (pip install polypandas[pyarrow])
+enables proper nested struct columns.
 """
 
 from polypandas.exceptions import (
@@ -28,8 +29,10 @@ from polypandas.io import (
     save_as_parquet,
     save_dicts_as_json,
 )
-from polypandas.protocols import is_pandas_available
+from polypandas.protocols import is_pandas_available, is_pyarrow_available
 from polypandas.schema import (
+    has_nested_structs,
+    infer_pyarrow_schema,
     infer_schema,
     python_type_to_pandas_dtype,
 )
@@ -50,8 +53,11 @@ __all__ = [
     "PandasFactory",
     "build_pandas_dataframe",
     "pandas_factory",
+    "has_nested_structs",
+    "infer_pyarrow_schema",
     "infer_schema",
     "python_type_to_pandas_dtype",
+    "is_pyarrow_available",
     "assert_dataframe_equal",
     "assert_schema_equal",
     "assert_dtypes_equal",

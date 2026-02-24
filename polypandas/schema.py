@@ -168,3 +168,122 @@ def infer_dtypes_for_dataframe(model: Type) -> Optional[Dict[str, Any]]:
     Returns None if pandas is not available (caller can omit dtype and let inference happen).
     """
     return infer_schema(model)
+
+
+def _is_struct_like(type_hint: Type) -> bool:
+    """True if the type is a dataclass, Pydantic model, or TypedDict (nested struct)."""
+    if is_dataclass(type_hint):
+        return True
+    if get_origin(type_hint) in (list, List):
+        args = get_args(type_hint)
+        if args and (is_dataclass(args[0]) or hasattr(args[0], "model_fields")):
+            return True
+    if hasattr(type_hint, "model_fields"):
+        return True
+    if hasattr(type_hint, "__annotations__") and get_origin(type_hint) not in (list, List, dict, Dict):
+        return True
+    return False
+
+
+def has_nested_structs(model: Type) -> bool:
+    """Return True if the model has any field that is a nested struct (dataclass, Pydantic, etc.) or list of structs."""
+    try:
+        field_types = _get_model_field_types(model)
+    except Exception:
+        return False
+    for field_type in field_types.values():
+        t = unwrap_optional(field_type)
+        if _is_struct_like(t):
+            return True
+        if get_origin(t) in (list, List):
+            args = get_args(t)
+            if args and _is_struct_like(args[0]):
+                return True
+    return False
+
+
+def infer_pyarrow_schema(model: Type) -> Optional[Any]:
+    """Infer a PyArrow Schema from the model type.
+
+    Returns None if PyArrow is not installed or schema cannot be inferred.
+    Requires the optional dependency: pip install polypandas[pyarrow]
+    """
+    try:
+        import pyarrow as pa
+    except ImportError:
+        return None
+
+    def python_type_to_pa(python_type: Type, nullable: bool = True) -> Any:
+        if is_optional(python_type):
+            python_type = unwrap_optional(python_type)
+            nullable = True
+        origin = get_origin(python_type)
+        if origin is Literal:
+            python_type = infer_literal_type(python_type)
+            origin = None
+        args = get_args(python_type) if origin else ()
+
+        if python_type in (str, int, float, bool):
+            type_map = {str: pa.string(), int: pa.int64(), float: pa.float64(), bool: pa.bool_()}
+            return type_map[python_type]
+        if python_type is bytes or python_type is bytearray:
+            return pa.binary()
+        if python_type is date:
+            return pa.date32()
+        if python_type is datetime:
+            return pa.timestamp("us")
+        if python_type is Decimal:
+            return pa.decimal128(38, 9)
+
+        if origin in (list, List) and args:
+            inner = python_type_to_pa(args[0], nullable=True)
+            return pa.list_(inner)
+        if origin in (dict, Dict) and len(args) >= 2:
+            k = python_type_to_pa(args[0], nullable=False)
+            v = python_type_to_pa(args[1], nullable=True)
+            return pa.map_(k, v)
+
+        if is_dataclass(python_type):
+            fields = []
+            type_hints = get_type_hints(python_type)
+            for f in dataclass_fields(python_type):
+                ft = type_hints.get(f.name, f.type)
+                n = is_optional(ft)
+                pa_type = python_type_to_pa(ft, nullable=n)
+                fields.append(pa.field(f.name, pa_type, nullable=n))
+            return pa.struct(fields)
+
+        if hasattr(python_type, "model_fields"):
+            fields = []
+            for name, info in python_type.model_fields.items():
+                ft = info.annotation
+                n = not info.is_required() or is_optional(ft)
+                pa_type = python_type_to_pa(ft, nullable=n)
+                fields.append(pa.field(name, pa_type, nullable=n))
+            return pa.struct(fields)
+
+        if hasattr(python_type, "__annotations__"):
+            required = getattr(python_type, "__required_keys__", set())
+            fields = []
+            for name, ft in python_type.__annotations__.items():
+                n = name not in required or is_optional(ft)
+                pa_type = python_type_to_pa(ft, nullable=n)
+                fields.append(pa.field(name, pa_type, nullable=n))
+            return pa.struct(fields)
+
+        return None
+
+    try:
+        field_types = _get_model_field_types(model)
+    except Exception:
+        return None
+
+    pa_fields = []
+    for field_name, field_type in field_types.items():
+        nullable = is_optional(field_type)
+        pa_type = python_type_to_pa(field_type, nullable=nullable)
+        if pa_type is None:
+            return None
+        pa_fields.append(pa.field(field_name, pa_type, nullable=nullable))
+
+    return pa.schema(pa_fields)

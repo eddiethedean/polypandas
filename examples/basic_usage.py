@@ -1,4 +1,8 @@
-"""Basic usage of polypandas with dataclasses."""
+"""Basic usage of polypandas with dataclasses.
+
+See the project README for full docs: decorator, factory class, nested structs (PyArrow),
+testing utilities, and I/O.
+"""
 
 from dataclasses import dataclass
 from typing import Optional
