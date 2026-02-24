@@ -11,21 +11,6 @@ Inspired by [polyspark](https://github.com/eddiethedean/polyspark).
 
 ---
 
-## Table of contents
-
-- [Why Polypandas?](https://github.com/odosmatthews/polypandas#why-polypandas)
-- [Installation](https://github.com/odosmatthews/polypandas#installation)
-- [Quick start](https://github.com/odosmatthews/polypandas#quick-start)
-- [Nested structs (optional PyArrow)](https://github.com/odosmatthews/polypandas#nested-structs-optional-pyarrow)
-- [Key features](https://github.com/odosmatthews/polypandas#key-features)
-- [Type mapping](https://github.com/odosmatthews/polypandas#type-mapping)
-- [API reference](https://github.com/odosmatthews/polypandas#api-reference)
-- [Testing utilities](https://github.com/odosmatthews/polypandas#testing-utilities)
-- [Data I/O](https://github.com/odosmatthews/polypandas#data-io)
-- [License & related](https://github.com/odosmatthews/polypandas#license--related)
-
----
-
 ## Why Polypandas?
 
 Creating test data for pandas applications is tedious. Polypandas makes it **effortless** by generating realistic test DataFrames from your Python data models, with **automatic schema inference** so columns get the right dtypes even when values are null.
