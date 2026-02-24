@@ -314,6 +314,6 @@ loaded = load_dicts_from_json("users.jsonl")
 
 ## License & related
 
-- **License:** MIT — see [LICENSE](https://github.com/odosmatthews/polypandas/blob/main/LICENSE).
-- **Docs:** [docs/roadmap.md](https://github.com/odosmatthews/polypandas/blob/main/docs/roadmap.md) for roadmap and ideas.
+- **License:** MIT — see [LICENSE](https://github.com/eddiethedean/polypandas/blob/main/LICENSE).
+- **Docs:** [docs/roadmap.md](https://github.com/eddiethedean/polypandas/blob/main/docs/roadmap.md) for roadmap and ideas.
 - **Related:** [polyspark](https://github.com/eddiethedean/polyspark), [polyfactory](https://github.com/litestar-org/polyfactory).

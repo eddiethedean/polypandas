@@ -46,10 +46,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/odosmatthews/polypandas"
-Documentation = "https://github.com/odosmatthews/polypandas#readme"
-Repository = "https://github.com/odosmatthews/polypandas"
-Issues = "https://github.com/odosmatthews/polypandas/issues"
+Homepage = "https://github.com/eddiethedean/polypandas"
+Documentation = "https://github.com/eddiethedean/polypandas#readme"
+Repository = "https://github.com/eddiethedean/polypandas"
+Issues = "https://github.com/eddiethedean/polypandas/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["polypandas"]
