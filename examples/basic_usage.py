@@ -2,6 +2,24 @@
 
 See the project README for full docs: decorator, factory class, nested structs (PyArrow),
 testing utilities, and I/O.
+
+Run with: python examples/basic_usage.py
+
+Example output (sample run; data varies):
+-----------------------------------------
+Generated dicts (first 2): [{'id': 5794, 'name': 'FAzDefKOpYGSwvowbttu', 'email': 'dmFqxuGeHyRnkYIlImuM'}, {'id': 7251, 'name': 'rPwDCYEejBFEGdrVobLg', 'email': 'RjSJmnHPPrRmklPkfTGz'}]
+
+DataFrame shape: (100, 5)
+
+First 3 rows:
+   product_id                  name  ...           description in_stock
+0        5664  aOLpLfAKrUlgjUzSZhso  ...  ShsQZozAZtPmJqGHwfcm     True
+1        5673  bZfTDNycbuWDwXCJcbov  ...  eEmXXenKOYVPYUCoNRXa     True
+2        1716  fnMoLyjGwigUyCwjGWPn  ...  owCcYWWbAMGjLvmKmDgd    False
+
+[3 rows x 5 columns]
+
+Dtypes: {'product_id': dtype('int64'), 'name': dtype('O'), 'price': dtype('float64'), 'description': dtype('O'), 'in_stock': dtype('bool')}
 """
 
 from dataclasses import dataclass
