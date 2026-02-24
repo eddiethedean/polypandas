@@ -59,7 +59,22 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = ["-v"]
+addopts = ["-v", "--cov=polypandas", "--cov-report=term-missing", "--cov-report=html"]
+
+[tool.coverage.run]
+source = ["polypandas"]
+omit = ["*/tests/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
 
 [tool.black]
 line-length = 100

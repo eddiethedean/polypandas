@@ -12,12 +12,7 @@ from polypandas import (
 )
 from polypandas.exceptions import PandasNotAvailableError
 
-
-@dataclass
-class User:
-    id: int
-    name: str
-    email: str
+from conftest import User, UserFactory
 
 
 @dataclass
@@ -34,10 +29,6 @@ class Product:
 class DecoratedUser:
     id: int
     name: str
-
-
-class UserFactory(PandasFactory[User]):
-    __model__ = User
 
 
 def test_build_dicts():
@@ -102,3 +93,65 @@ def test_create_dataframe_from_dicts():
     assert isinstance(df, pd.DataFrame)
     assert len(df) == 5
     assert list(df.columns) == ["id", "name", "email"]
+
+
+def test_build_dataframe_with_explicit_schema():
+    """Explicit schema dict overrides inferred dtypes when not using PyArrow."""
+    import pandas as pd
+
+    df = UserFactory.build_dataframe(size=5, schema={"id": "float64", "name": "object", "email": "object"})
+    assert isinstance(df, pd.DataFrame)
+    assert len(df) == 5
+    assert str(df["id"].dtype) == "float64"
+
+
+@dataclass
+class NestedAddress:
+    street: str
+    city: str
+
+
+@dataclass
+class PersonWithAddress:
+    id: int
+    name: str
+    address: NestedAddress
+
+
+def test_build_dataframe_use_pyarrow_none_nested():
+    """build_dataframe with use_pyarrow=None on nested model succeeds and returns correct shape."""
+    import pandas as pd
+
+    class PersonFactory(PandasFactory[PersonWithAddress]):
+        __model__ = PersonWithAddress
+
+    df = PersonFactory.build_dataframe(size=2, use_pyarrow=None)
+    assert isinstance(df, pd.DataFrame)
+    assert len(df) == 2
+    assert list(df.columns) == ["id", "name", "address"]
+    assert isinstance(df["address"].iloc[0], dict)
+
+
+@pytest.mark.skipif(
+    __import__("sys").modules.get("pydantic") is None,
+    reason="pydantic not installed",
+)
+def test_pydantic_pandas_factory_build_dicts_and_dataframe():
+    """Pydantic model with @pandas_factory: build_dicts and build_dataframe work when pydantic available."""
+    from pydantic import BaseModel
+
+    @pandas_factory
+    class Order(BaseModel):
+        order_id: int
+        amount: float
+
+    dicts = Order.build_dicts(size=3)
+    assert len(dicts) == 3
+    assert set(dicts[0].keys()) == {"order_id", "amount"}
+
+    import pandas as pd
+
+    df = Order.build_dataframe(size=3)
+    assert isinstance(df, pd.DataFrame)
+    assert len(df) == 3
+    assert list(df.columns) == ["order_id", "amount"]
